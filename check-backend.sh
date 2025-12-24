@@ -4,10 +4,10 @@ echo "=== Backend Health Check ==="
 echo ""
 
 echo "1. Checking if PM2 process is running..."
-pm2 list | grep wmp
+pm2 list | grep efiling
 if [ $? -eq 0 ]; then
     echo "✅ PM2 process found"
-    pm2 info wmp
+    pm2 info efiling
 else
     echo "❌ PM2 process NOT running"
 fi
@@ -47,7 +47,7 @@ fi
 
 echo ""
 echo "5. Checking PM2 logs (last 10 lines)..."
-pm2 logs wmp --lines 10 --nostream 2>&1 | tail -10
+pm2 logs efiling --lines 10 --nostream 2>&1 | tail -10
 
 echo ""
 echo "=== Check Complete ==="

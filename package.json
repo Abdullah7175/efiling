@@ -1,5 +1,5 @@
 {
-  "name": "wmp",
+  "name": "efiling",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,10 +11,10 @@
     "start:next": "next start -p 5000 -H 0.0.0.0",
     "start:standalone": "node .next/standalone/server.js",
     "pm2:start": "pm2 start ecosystem.config.js",
-    "pm2:stop": "pm2 stop wmp",
-    "pm2:restart": "pm2 restart wmp",
-    "pm2:delete": "pm2 delete wmp",
-    "pm2:logs": "pm2 logs wmp",
+    "pm2:stop": "pm2 stop efiling",
+    "pm2:restart": "pm2 restart efiling",
+    "pm2:delete": "pm2 delete efiling",
+    "pm2:logs": "pm2 logs efiling",
     "lint": "next lint"
   },
   "dependencies": {

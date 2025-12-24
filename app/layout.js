@@ -20,7 +20,7 @@ const poppins = {
 };
 
 export const metadata = {
-  title: "WMP",
+  title: "E-Filing",
   description: "Karachi Water & Sewerage Corporation",
 };
 

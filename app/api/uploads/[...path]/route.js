@@ -63,7 +63,7 @@ export async function GET(request, { params }) {
       if (!existsSync(testUploadsPath)) {
         console.log(`[Uploads API] Uploads not found at ${testUploadsPath}, trying alternatives...`);
         // Try alternative production paths
-        const productionPaths = ['/opt/wmp16', '/opt/wmp', process.cwd()];
+        const productionPaths = ['/opt/efiling', '/opt/efiling', process.cwd()];
         for (const prodPath of productionPaths) {
           const testPath = join(prodPath, 'public', 'uploads');
           if (existsSync(testPath)) {

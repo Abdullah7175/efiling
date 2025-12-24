@@ -34,11 +34,11 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'wmp.kwsc.gos.pk',
+        hostname: 'efiling.kwsc.gos.pk',
       },
       {
         protocol: 'http',
-        hostname: 'wmp.kwsc.gos.pk',
+        hostname: 'efiling.kwsc.gos.pk',
         port: '5000',
       },
       {

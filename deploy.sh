@@ -5,7 +5,7 @@
 
 set -e  # Exit on error
 
-echo "🚀 Starting WMP deployment..."
+echo "🚀 Starting Efiling deployment..."
 echo "================================"
 
 # Colors for output
@@ -35,7 +35,7 @@ fi
 
 # Stop PM2 if running
 print_status "Stopping PM2..."
-pm2 stop wmp 2>/dev/null || print_warning "PM2 process not running"
+pm2 stop efiling 2>/dev/null || print_warning "PM2 process not running"
 
 # Pull latest code (optional - uncomment if deploying from git)
 # print_status "Pulling latest code..."
@@ -87,9 +87,9 @@ pm2 list
 
 echo ""
 echo "📝 Quick Commands:"
-echo "  View logs:    pm2 logs wmp"
-echo "  Restart:      pm2 restart wmp"
-echo "  Stop:         pm2 stop wmp"
+echo "  View logs:    pm2 logs efiling"
+echo "  Restart:      pm2 restart efiling"
+echo "  Stop:         pm2 stop efiling"
 echo "  Monitor:      pm2 monit"
 echo ""
 
