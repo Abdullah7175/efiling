@@ -38,7 +38,7 @@ async function setupStandalone() {
       console.error('This can happen in Next.js 13.5.11. You have two options:');
       console.error('');
       console.error('Option 1: Use regular Next.js server (recommended):');
-      console.error('  Update ecosystem.config.js to use: "next start -p 3000 -H 0.0.0.0"');
+      console.error('  Update ecosystem.config.js to use: "next start -p 5000 -H 0.0.0.0"');
       console.error('');
       console.error('Option 2: Try upgrading Next.js:');
       console.error('  npm install next@latest');
