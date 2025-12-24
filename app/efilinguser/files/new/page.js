@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEfilingUser } from "@/context/EfilingUserContext";
 import { SearchableDropdown } from "@/components/SearchableDropdown";
 import { getFiscalYear } from "@/lib/utils";
+import { searchWorkRequests, verifyWorkRequest } from "@/lib/videoArchivingApiClient";
 
 const validationSchema = Yup.object({
     subject: Yup.string()
@@ -45,6 +46,7 @@ const validationSchema = Yup.object({
         .required('File type is required')
         .min(1, 'Please select a file type'),
     assigned_to: Yup.mixed().nullable(),
+    work_request_id: Yup.number().nullable(),
     remarks: Yup.string().max(1000, 'Remarks must not exceed 1000 characters'),
 });
 
@@ -59,6 +61,9 @@ export default function CreateNewFile() {
     const [categories, setCategories] = useState([]);
     const [fileTypes, setFileTypes] = useState([]);
     const [users, setUsers] = useState([]);
+    const [workRequestOptions, setWorkRequestOptions] = useState([]);
+    const [workRequestLoading, setWorkRequestLoading] = useState(false);
+    const workRequestCacheRef = useRef(new Map());
     const dataFetchedRef = useRef(false);
 
     const userDepartmentId = userProfile?.department_id ? Number(userProfile.department_id) : null;
@@ -184,6 +189,7 @@ export default function CreateNewFile() {
             department_id: '',
             file_type_id: '',
             assigned_to: null,
+            work_request_id: null,
             remarks: '',
         },
         validationSchema,
@@ -199,6 +205,7 @@ export default function CreateNewFile() {
                         department_id: parseInt(values.department_id),
                         file_type_id: parseInt(values.file_type_id),
                         assigned_to: values.assigned_to ? parseInt(values.assigned_to) : null,
+                        work_request_id: values.work_request_id ? parseInt(values.work_request_id) : null,
                         priority: 'high',
                         confidentiality_level: 'normal',
                     }),
@@ -267,6 +274,117 @@ export default function CreateNewFile() {
     const handleFileTypeChange = async (fileTypeId) => {
         formik.setFieldValue('file_type_id', fileTypeId);
     };
+
+    // Format work request label for display
+    const formatWorkRequestLabel = (workRequest) => {
+        if (!workRequest) return '';
+        const id = workRequest.id || workRequest.value;
+        const address = workRequest.address || '';
+        const status = workRequest.status_name || '';
+        return `#${id} - ${address}${status ? ` (${status})` : ''}`;
+    };
+
+    // Fetch work requests from Video Archiving API
+    const fetchWorkRequests = useCallback(async (searchTerm = '') => {
+        if (workRequestLoading) return;
+        
+        setWorkRequestLoading(true);
+        try {
+            const result = await searchWorkRequests({
+                search: searchTerm,
+                limit: 50
+            });
+            
+            if (result.success && result.data) {
+                const options = result.data.map((wr) => ({
+                    value: wr.id.toString(),
+                    label: formatWorkRequestLabel(wr),
+                    ...wr
+                }));
+                setWorkRequestOptions(options);
+                
+                // Cache results
+                if (searchTerm) {
+                    workRequestCacheRef.current.set(searchTerm.toLowerCase(), options);
+                }
+            } else {
+                console.error('Failed to fetch work requests:', result.error);
+                setWorkRequestOptions([]);
+            }
+        } catch (error) {
+            console.error('Error fetching work requests:', error);
+            setWorkRequestOptions([]);
+        } finally {
+            setWorkRequestLoading(false);
+        }
+    }, [workRequestLoading]);
+
+    // Handle work request search
+    const handleWorkRequestSearch = useCallback((searchTerm) => {
+        if (!searchTerm || searchTerm.length < 2) {
+            setWorkRequestOptions([]);
+            return;
+        }
+        
+        // Check cache first
+        const cacheKey = searchTerm.toLowerCase();
+        if (workRequestCacheRef.current.has(cacheKey)) {
+            setWorkRequestOptions(workRequestCacheRef.current.get(cacheKey));
+            return;
+        }
+        
+        // Debounce search
+        const timeoutId = setTimeout(() => {
+            fetchWorkRequests(searchTerm);
+        }, 300);
+        
+        return () => clearTimeout(timeoutId);
+    }, [fetchWorkRequests]);
+
+    // Verify work request when selected
+    const handleWorkRequestChange = useCallback(async (value) => {
+        if (!value) {
+            formik.setFieldValue('work_request_id', null);
+            return;
+        }
+        
+        const workRequestId = parseInt(value);
+        if (isNaN(workRequestId)) {
+            toast({
+                title: "Error",
+                description: "Invalid work request ID",
+                variant: "destructive"
+            });
+            return;
+        }
+        
+        // Verify work request exists
+        try {
+            const verifyResult = await verifyWorkRequest(workRequestId);
+            if (verifyResult.success && verifyResult.exists && verifyResult.valid) {
+                formik.setFieldValue('work_request_id', workRequestId);
+                toast({
+                    title: "Success",
+                    description: `Work request #${workRequestId} verified and linked`,
+                });
+            } else {
+                toast({
+                    title: "Error",
+                    description: verifyResult.error || "Work request not found or invalid",
+                    variant: "destructive"
+                });
+                formik.setFieldValue('work_request_id', null);
+            }
+        } catch (error) {
+            console.error('Error verifying work request:', error);
+            toast({
+                title: "Error",
+                description: "Failed to verify work request",
+                variant: "destructive"
+            });
+            formik.setFieldValue('work_request_id', null);
+        }
+    }, [formik, toast]);
 
     useEffect(() => {
         if (!profileReady || !departments.length) return;
@@ -421,6 +539,23 @@ export default function CreateNewFile() {
                                     </Select>
                                     <p className="text-sm text-gray-500 mt-1">Marking rules and SLA deadlines will be applied automatically for this file type.</p>
                                     {formik.touched.file_type_id && formik.errors.file_type_id && (<p className="text-red-500 text-sm mt-1">{formik.errors.file_type_id}</p>)}
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="work_request_id">Video Archiving Request ID (Optional)</Label>
+                                    <SearchableDropdown
+                                        id="work_request_id"
+                                        options={workRequestOptions}
+                                        value={formik.values.work_request_id ? formik.values.work_request_id.toString() : ''}
+                                        onValueChange={handleWorkRequestChange}
+                                        onSearch={handleWorkRequestSearch}
+                                        placeholder="Search work requests by ID, address, or description..."
+                                        loading={workRequestLoading}
+                                        emptyMessage="No work requests found. Start typing to search..."
+                                        className={formik.touched.work_request_id && formik.errors.work_request_id ? 'border-red-500' : ''}
+                                    />
+                                    <p className="text-sm text-gray-500 mt-1">Link this file to a work request from Video Archiving system</p>
+                                    {formik.touched.work_request_id && formik.errors.work_request_id && (<p className="text-red-500 text-sm mt-1">{formik.errors.work_request_id}</p>)}
                                 </div>
 
                                 {/* <div>

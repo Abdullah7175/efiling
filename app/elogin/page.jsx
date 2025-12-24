@@ -307,9 +307,6 @@ export default function EFileLoginPage() {
       <div className="flex items-center justify-center gap-0">
          <Image src="/logo.png" className="py-0 px-1" width="150" height="150" alt="logo" priority />
        </div>
-       <div className="flex gap-4 items-center mb-8">
-         <h1 className="text-2xl font-semibold">Works Management Portal</h1>
-       </div>
         
 
 
@@ -326,7 +323,7 @@ export default function EFileLoginPage() {
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <FileText className="w-8 h-8 text-green-600" />
               </div>
-              <CardTitle className="text-2xl text-green-900">Works Management Portal</CardTitle>
+              <CardTitle className="text-2xl text-green-900">E-Filing PORTAL</CardTitle>
               <CardDescription className="text-gray-600">
                 Electronic Filing System Login
               </CardDescription>
@@ -453,26 +450,6 @@ export default function EFileLoginPage() {
                 </Button>
               </form>
 
-              {/* Divider */}
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-white px-2 text-gray-500">Or continue with</span>
-                </div>
-              </div>
-
-              {/* Google OAuth Button */}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => signIn("google", { callbackUrl: "/" })}
-                className="w-full border-gray-300 hover:bg-gray-50 text-gray-700 py-3 font-medium"
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                Sign in with Google
-              </Button>
 
               <div className="text-center">
                 <p className="text-xs text-gray-500">

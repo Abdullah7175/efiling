@@ -252,7 +252,10 @@ export async function middleware(req) {
     try {
         // In Edge runtime, we can't use auth() which requires Node.js crypto
         // Instead, check for session cookies directly
-        const sessionCookie = req.cookies.get('next-auth.session-token') || 
+        // Use e-filing specific cookie names to avoid conflicts with video archiving
+        const sessionCookie = req.cookies.get('efiling-next-auth.session-token') || 
+                             req.cookies.get('__Secure-efiling-next-auth.session-token') ||
+                             req.cookies.get('next-auth.session-token') || // Fallback for old cookies
                              req.cookies.get('__Secure-next-auth.session-token') ||
                              req.cookies.get('authjs.session-token') ||
                              req.cookies.get('__Secure-authjs.session-token');

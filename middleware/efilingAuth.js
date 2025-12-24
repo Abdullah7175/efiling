@@ -62,14 +62,22 @@ export async function efilingAuthMiddleware(request) {
     
     // Check for session cookie directly (Edge runtime compatible)
     // In Edge runtime, we can't use getToken, so we check cookies directly
+    // Use e-filing specific cookie names to avoid conflicts with video archiving
     const sessionCookie = request.cookies.get(
+        process.env.NODE_ENV === 'production' 
+            ? '__Secure-efiling-next-auth.session-token' 
+            : 'efiling-next-auth.session-token'
+    ) || request.cookies.get(
         process.env.NODE_ENV === 'production' 
             ? '__Secure-next-auth.session-token' 
             : 'next-auth.session-token'
     ) || request.cookies.get('authjs.session-token') || request.cookies.get('__Secure-authjs.session-token');
     
-    // For next-auth v5, also check for the new cookie names
-    const nextAuthCookie = request.cookies.get('next-auth.session-token') || 
+    // For next-auth v5, check for e-filing specific cookie names first
+    // Use e-filing specific cookie names to avoid conflicts with video archiving
+    const nextAuthCookie = request.cookies.get('efiling-next-auth.session-token') || 
+                           request.cookies.get('__Secure-efiling-next-auth.session-token') ||
+                           request.cookies.get('next-auth.session-token') || // Fallback for old cookies
                            request.cookies.get('__Secure-next-auth.session-token') ||
                            request.cookies.get('authjs.session-token') ||
                            request.cookies.get('__Secure-authjs.session-token');
@@ -85,7 +93,12 @@ export async function efilingAuthMiddleware(request) {
         
         // Check if there's a referer from elogin (user just logged in)
         // Give a small grace period by checking for session cookie directly
+        // Use e-filing specific cookie names
         const sessionCookie = request.cookies.get(
+            process.env.NODE_ENV === 'production' 
+                ? '__Secure-efiling-next-auth.session-token' 
+                : 'efiling-next-auth.session-token'
+        ) || request.cookies.get(
             process.env.NODE_ENV === 'production' 
                 ? '__Secure-next-auth.session-token' 
                 : 'next-auth.session-token'
