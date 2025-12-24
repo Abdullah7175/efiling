@@ -1,0 +1,53 @@
+// Middleware temporarily disabled - using NextAuth.js for authentication
+// This middleware was using direct JWT tokens which conflicts with NextAuth.js
+// Will be re-enabled with NextAuth-compatible implementation later
+
+/*
+import { NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
+
+const SECRET_KEY = process.env.JWT_SECRET;
+
+export async function middleware(request) {
+  const tokenFromCookie = request.cookies.get('jwtToken')?.value;
+  const authHeader = request.headers.get('Authorization');
+  const tokenFromHeader = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+  const token = tokenFromCookie || tokenFromHeader;
+  const isLoginRoute = request.nextUrl.pathname === '/login';
+
+  console.log("Retrieved Token:", token);
+
+  if (!token) {
+    return isLoginRoute
+      ? NextResponse.next()
+      : NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  try {
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(SECRET_KEY));
+    const currentTime = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < currentTime) {
+      console.log("Token expired");
+      return isLoginRoute
+        ? NextResponse.next()
+        : NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    if (isLoginRoute) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+
+    return NextResponse.next();
+
+  } catch (error) {
+    console.error("JWT Verification Error:", error);
+    return isLoginRoute
+      ? NextResponse.next()
+      : NextResponse.redirect(new URL('/login', request.url));
+  }
+}
+
+export const config = {
+  matcher: ['/dashboard', '/dashboard/:path*', '/login'],
+};
+*/
